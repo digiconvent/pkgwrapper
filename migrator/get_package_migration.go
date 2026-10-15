@@ -1,14 +1,13 @@
 package migrator
 
 import (
-	"os"
+	"io/fs"
 	"path"
 	"strings"
 )
 
 func (d *data) GetPackageMigration(pkg string, version string) (map[string]string, error) {
-	versionInPkgDir := path.Join(d.pkgDir, pkg, "db", version)
-	files, err := os.ReadDir(versionInPkgDir)
+	files, err := fs.ReadDir(d.embeddedFS, version)
 	if err != nil {
 		return nil, err
 	}
@@ -21,8 +20,7 @@ func (d *data) GetPackageMigration(pkg string, version string) (map[string]strin
 		if !strings.HasSuffix(file.Name(), ".sql") {
 			continue
 		}
-		// these files cannot be too big to handle so reading the entire contents of an sql file should not be a problem
-		contents, err := os.ReadFile(path.Join(versionInPkgDir, file.Name()))
+		contents, err := fs.ReadFile(d.embeddedFS, path.Join(version, file.Name()))
 		if err != nil {
 			continue
 		}

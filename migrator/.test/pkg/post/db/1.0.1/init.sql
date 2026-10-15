@@ -1,1 +1,0 @@
--- these are the contents of post/1.0.1/init.sql

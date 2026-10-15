@@ -8,15 +8,6 @@ import (
 )
 
 func OpenWithConfig[S Initialisable](name string, cfg Config) (*PackageBuilder[S], error) {
-	projectRoot := cfg.ProjectRoot
-	if projectRoot == "" {
-		var err error
-		projectRoot, err = findProjectRoot()
-		if err != nil {
-			return nil, err
-		}
-	}
-
 	dataRoot := cfg.DataRoot
 	if dataRoot == "" {
 		var err error
@@ -34,5 +25,5 @@ func OpenWithConfig[S Initialisable](name string, cfg Config) (*PackageBuilder[S
 		target = version.ToVersion(cfg.TargetVersion)
 	}
 
-	return For[S](name, dataRoot, target, migrationFilesFor(cfg, projectRoot))
+	return For[S](name, dataRoot, target, migrationFilesFor(cfg, name))
 }

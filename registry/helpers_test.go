@@ -1,8 +1,8 @@
 package registry_test
 
 import (
-	"os"
-	"path/filepath"
+	"embed"
+	"io/fs"
 	"testing"
 
 	"github.com/digiconvent/pkgwrapper/db"
@@ -31,27 +31,21 @@ func (s *testServices) hasColumn(table, column string) bool {
 	return rows.Next()
 }
 
-func setupPackageFixture(t *testing.T) string {
+//go:embed .test/widgets/db
+var embeddedWidgetsDb embed.FS
+
+func widgetsFS(t *testing.T) fs.FS {
 	t.Helper()
-	dir := t.TempDir()
-
-	write := func(path, sql string) {
-		t.Helper()
-		full := filepath.Join(dir, path)
-		os.MkdirAll(filepath.Dir(full), 0755)
-		if err := os.WriteFile(full, []byte(sql), 0644); err != nil {
-			t.Fatalf("failed to write %s: %v", path, err)
-		}
+	sub, err := fs.Sub(embeddedWidgetsDb, ".test/widgets/db")
+	if err != nil {
+		t.Fatal(err)
 	}
-
-	write("pkg/widgets/db/0.0.1/001_create_widgets.sql", `create table widgets (id integer primary key, name text not null);`)
-	write("pkg/widgets/db/0.0.2/001_add_color.sql", `alter table widgets add column color text;`)
-
-	return dir
+	return sub
 }
 
-func buildLocalFiles(projectRoot string) registry.BuildManager {
+func buildEmbeddedFiles(t *testing.T) registry.BuildManager {
+	fsys := widgetsFS(t)
 	return func(installed, target *version.Version) (migrator.PackageWrapper, error) {
-		return migrator.From(installed).To(target).WithLocalFilesAt(projectRoot, "pkg")
+		return migrator.From(installed).To(target).WithEmbeddedFS(fsys, "widgets")
 	}
 }

@@ -8,11 +8,11 @@ import (
 )
 
 func TestReset_ClosesAndForgetsSoNextForRebuilds(t *testing.T) {
-	projectRoot := setupPackageFixture(t)
 	dataDir := t.TempDir()
 	target := version.ToVersion("0.0.1")
+	build := buildEmbeddedFiles(t)
 
-	b1, err := registry.For[*testServices]("widgets", dataDir, target, buildLocalFiles(projectRoot))
+	b1, err := registry.For[*testServices]("widgets", dataDir, target, build)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -20,7 +20,7 @@ func TestReset_ClosesAndForgetsSoNextForRebuilds(t *testing.T) {
 
 	registry.Reset("widgets", dataDir)
 
-	b2, err := registry.For[*testServices]("widgets", dataDir, target, buildLocalFiles(projectRoot))
+	b2, err := registry.For[*testServices]("widgets", dataDir, target, build)
 	if err != nil {
 		t.Fatalf("unexpected error after reset: %v", err)
 	}

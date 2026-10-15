@@ -1,6 +1,8 @@
 package migrator
 
 import (
+	"io/fs"
+
 	"github.com/digiconvent/pkgwrapper/db"
 	"github.com/digiconvent/pkgwrapper/version"
 )
@@ -20,8 +22,10 @@ type PackageWrapper interface {
 type data struct {
 	fromVersion *version.Version
 	toVersion   *version.Version
-	pkgDir      string
 	dataDir     string
+
+	embeddedFS   fs.FS
+	embeddedName string
 
 	verbose bool
 }
@@ -35,12 +39,5 @@ type migrateToVersion interface {
 
 type packageManagerChoice interface {
 	Verbose() packageManagerChoice
-	WithPublicRepository(username, repository string) (repoPackageWrapper, error)
-	WithPrivateRepository(username, repository, token string) (repoPackageWrapper, error)
-	WithLocalFilesAt(projectRoot, pkgDir string) (PackageWrapper, error)
-}
-
-type repoPackageWrapper interface {
-	// dir is the directory, relative to the project root, where the packages are
-	WithPkgDir(dir string) (PackageWrapper, error)
+	WithEmbeddedFS(fsys fs.FS, name string) (PackageWrapper, error)
 }

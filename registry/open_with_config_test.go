@@ -6,14 +6,10 @@ import (
 	"github.com/digiconvent/pkgwrapper/registry"
 )
 
-func TestOpenWithConfig_MigratesAndServesUsingLocalFilesInTests(t *testing.T) {
-	projectRoot := setupPackageFixture(t)
-	dataDir := t.TempDir()
-
+func TestOpenWithConfig_MigratesAndServesUsingAnEmbeddedFS(t *testing.T) {
 	b, err := registry.OpenWithConfig[*testServices]("widgets", registry.Config{
-		ProjectRoot: projectRoot,
-		DataRoot:    dataDir,
-		PkgDir:      "pkg",
+		DataRoot:   t.TempDir(),
+		EmbeddedFS: widgetsFS(t),
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -26,14 +22,28 @@ func TestOpenWithConfig_MigratesAndServesUsingLocalFilesInTests(t *testing.T) {
 }
 
 func TestOpenWithConfig_DefaultsDataRootDuringTests(t *testing.T) {
-	projectRoot := setupPackageFixture(t)
-
 	b, err := registry.OpenWithConfig[*testServices]("widgets", registry.Config{
-		ProjectRoot: projectRoot,
-		PkgDir:      "pkg",
+		EmbeddedFS: widgetsFS(t),
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
+	}
+	pkg := b.ServingWith(newTestServices)
+	if !pkg.Services.hasColumn("widgets", "name") {
+		t.Error("expected widgets table to exist")
+	}
+}
+
+func TestOpenWithConfig_WorksOutsideAnyProjectRoot(t *testing.T) {
+	fsys := widgetsFS(t)
+	t.Chdir(t.TempDir())
+
+	b, err := registry.OpenWithConfig[*testServices]("widgets", registry.Config{
+		DataRoot:   t.TempDir(),
+		EmbeddedFS: fsys,
+	})
+	if err != nil {
+		t.Fatalf("expected no error outside any project root, got: %v", err)
 	}
 	pkg := b.ServingWith(newTestServices)
 	if !pkg.Services.hasColumn("widgets", "name") {

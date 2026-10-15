@@ -1,8 +1,7 @@
 package migrator
 
 import (
-	"os"
-	"path"
+	"io/fs"
 	"slices"
 
 	"github.com/digiconvent/pkgwrapper/version"
@@ -10,24 +9,18 @@ import (
 
 func (d *data) Versions() ([]string, error) {
 	var versions = []string{}
-	packages, err := d.GetPackages()
+
+	entries, err := fs.ReadDir(d.embeddedFS, ".")
 	if err != nil {
-		return nil, err
+		return versions, nil
 	}
-
-	for _, pkg := range packages {
-		entries, err := os.ReadDir(path.Join(d.pkgDir, pkg, "db"))
-		if err != nil {
-			continue // if db doesn't exist, don't do anything
+	for _, entry := range entries {
+		if version.ToVersion(entry.Name()) == nil {
+			continue
 		}
-		for _, entry := range entries {
-			if version.ToVersion(entry.Name()) == nil {
-				continue
-			}
 
-			if !slices.Contains(versions, entry.Name()) {
-				versions = append(versions, entry.Name())
-			}
+		if !slices.Contains(versions, entry.Name()) {
+			versions = append(versions, entry.Name())
 		}
 	}
 	return versions, nil

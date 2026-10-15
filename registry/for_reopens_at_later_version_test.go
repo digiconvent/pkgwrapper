@@ -8,11 +8,11 @@ import (
 )
 
 func TestFor_ReopensAtLaterVersionWithoutRerunningEarlierMigrations(t *testing.T) {
-	projectRoot := setupPackageFixture(t)
 	dataDir := t.TempDir()
+	build := buildEmbeddedFiles(t)
 
 	registry.Reset("widgets", dataDir)
-	b, err := registry.For[*testServices]("widgets", dataDir, version.ToVersion("0.0.1"), buildLocalFiles(projectRoot))
+	b, err := registry.For[*testServices]("widgets", dataDir, version.ToVersion("0.0.1"), build)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -23,7 +23,7 @@ func TestFor_ReopensAtLaterVersionWithoutRerunningEarlierMigrations(t *testing.T
 	// must read the *already installed* version back from disk rather than
 	// re-running 0.0.1's migration against a table it already created.
 	registry.Reset("widgets", dataDir)
-	b2, err := registry.For[*testServices]("widgets", dataDir, version.ToVersion("0.0.2"), buildLocalFiles(projectRoot))
+	b2, err := registry.For[*testServices]("widgets", dataDir, version.ToVersion("0.0.2"), build)
 	if err != nil {
 		t.Fatalf("unexpected error migrating forward: %v", err)
 	}

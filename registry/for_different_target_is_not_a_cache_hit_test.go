@@ -8,10 +8,10 @@ import (
 )
 
 func TestFor_DifferentTargetIsNotACacheHit(t *testing.T) {
-	projectRoot := setupPackageFixture(t)
 	dataDir := t.TempDir()
+	build := buildEmbeddedFiles(t)
 
-	b1, err := registry.For[*testServices]("widgets", dataDir, version.ToVersion("0.0.1"), buildLocalFiles(projectRoot))
+	b1, err := registry.For[*testServices]("widgets", dataDir, version.ToVersion("0.0.1"), build)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -20,7 +20,7 @@ func TestFor_DifferentTargetIsNotACacheHit(t *testing.T) {
 		t.Fatal("color column should not exist yet at 0.0.1")
 	}
 
-	b2, err := registry.For[*testServices]("widgets", dataDir, version.ToVersion("0.0.2"), buildLocalFiles(projectRoot))
+	b2, err := registry.For[*testServices]("widgets", dataDir, version.ToVersion("0.0.2"), build)
 	if err != nil {
 		t.Fatalf("unexpected error migrating to 0.0.2: %v", err)
 	}

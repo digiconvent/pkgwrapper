@@ -8,11 +8,10 @@ import (
 )
 
 func TestFor_MigratesAndServesFreshDatabase(t *testing.T) {
-	projectRoot := setupPackageFixture(t)
 	dataDir := t.TempDir()
 	target := version.ToVersion("0.0.1")
 
-	b, err := registry.For[*testServices]("widgets", dataDir, target, buildLocalFiles(projectRoot))
+	b, err := registry.For[*testServices]("widgets", dataDir, target, buildEmbeddedFiles(t))
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

@@ -8,14 +8,14 @@ import (
 )
 
 func TestFor_DifferentDataDirProducesDifferentBuilder(t *testing.T) {
-	projectRoot := setupPackageFixture(t)
 	target := version.ToVersion("0.0.1")
+	build := buildEmbeddedFiles(t)
 
-	b1, err := registry.For[*testServices]("widgets", t.TempDir(), target, buildLocalFiles(projectRoot))
+	b1, err := registry.For[*testServices]("widgets", t.TempDir(), target, build)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	b2, err := registry.For[*testServices]("widgets", t.TempDir(), target, buildLocalFiles(projectRoot))
+	b2, err := registry.For[*testServices]("widgets", t.TempDir(), target, build)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

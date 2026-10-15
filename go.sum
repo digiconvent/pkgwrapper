@@ -1,4 +1,2 @@
-github.com/digiconvent/req v0.1.0 h1:hnkar/ykkUNU+CQOC8Rv/jCaaeIrfj6DhEpb4JRPQSk=
-github.com/digiconvent/req v0.1.0/go.mod h1:XGZTdbe29PcHIWCIPOONftA/Kag8mddZ8FXt23E1PEc=
 github.com/mattn/go-sqlite3 v1.14.32 h1:JD12Ag3oLy1zQA+BNn74xRgaBbdhbNIDYvQUEuuErjs=
 github.com/mattn/go-sqlite3 v1.14.32/go.mod h1:Uh1q+B4BYcTPb+yiD3kU8Ct7aC0hY9fxUwlHK0RXw+Y=
